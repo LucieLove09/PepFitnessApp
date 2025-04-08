@@ -1,34 +1,38 @@
-import { StyleSheet, Text, View } from "react-native";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { StyleSheet, Text, View, FlatList, TextInput, Button } from "react-native";
+import FoodListItem from '../components/FoodListItem'; 
+import { useState } from 'react'; 
 
-const FoodListItem = ({ item }) => {
-  return (
-    <View 
-        style={{ 
-          backgroundColor: 'gainsboro', 
-          padding: 10, 
-          borderRadius: 5, 
-          flexDirection: 'row',
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-        }}
-     >
-      <View style={{ flex: 1, gap: 5 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.label}</Text>
-        <Text style={{ color: 'dimgray' }}>{item.cal} cal, {item.brand}</Text>    
-      </View>  
-        <AntDesign name="pluscircleo" size={24} color="royalblue" />
-     </View>
-  )
-
-}
+const foodItems = [
+    { label: 'Pizza', cal:75, brand: 'Dominos' }, 
+    { label: 'Apple', cal:50, brand: 'Genetics' }, 
+    { label: 'Coffee', cal:100, brand: 'Americano' },
+    { label: 'Coffee', cal:100, brand: 'Americano' },  
+]; 
 
 export default function App() {
+  const [search, setSearch] = useState(''); 
+
+  const performSearch = () => {
+    console.warn('Searching for: ', search);
+    
+    setSearch(''); 
+  }; 
+
   return (
-  <View style={styles.container}>
-       {/*Food Item View */}
-       <FoodListItem item={{label: "Pizza", cal: 75, brand: 'Dominos' }}/>
-       <FoodListItem item={{label: "Apple", cal: 50, brand: 'Generic' }}/>
+    <View style={styles.container}>
+      <TextInput 
+        value={search}
+        onChangeText={setSearch}
+        placeholder="Search..." 
+        style={styles.input} 
+      />
+      {search && <Button title="Search" onPress={performSearch} />}
+       
+       <FlatList
+            data={foodItems}
+            renderItem={({ item }) => <FoodListItem item={item} />}
+            contentContainerStyle={{ gap: 5}}
+       />
     </View>
   );
 }
@@ -37,22 +41,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: "center",
     padding: 10,
-    gap: 5, 
+    gap: 10, 
   },
-  main: {
-    flex: 1,
-    justifyContent: "center",
-    maxWidth: 960,
-    marginHorizontal: "auto",
-  },
-  title: {
-    fontSize: 64,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 36,
-    color: "#38434D",
+  input: {
+    backgroundColor: '#f2f2f2', 
+    padding: 10, 
+    borderRadius: 20,
   },
 });
