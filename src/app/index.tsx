@@ -1,53 +1,143 @@
-import { Link } from 'expo-router'; 
-import { View, Text, FlatList, Button, StyleSheet } from 'react-native'; 
-import FoodListItem from '../components/FoodListItem';
+import { Link } from 'expo-router';
+import React from 'react';
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import { gql, useQuery } from '@apollo/client';
+import dayjs from 'dayjs';
 
-const foodItems = [{ 
-    food: { label: 'Pizza', nutrients: {ENERC_KCAL: 100 }, brand: 'Dominos' } 
-},
-{ 
-     food: { label: 'Pizza', nutrients: {ENERC_KCAL: 100 }, brand: 'Dominos' } 
-},
-];   
+const query = gql`
+  query foodLogsForDate($date: Date!, $user_id: String!) {
+    foodLogsForDate(date: $date, user_id: $user_id) {
+      created_at
+      food_id
+      id
+      kcal
+      label
+      user_id
+    }
+  }
+`;
 
-export default function Homescreen() {
+const HomeScreen = () => {
+  const user_id = 'vadim';
+  const { data, loading, error } = useQuery(query, {
+    variables: {
+      date: dayjs().format('YYYY-MM-DD'),
+      user_id,
+    },
+  });
+
+  if (loading) {
     return (
-        <View style={styles.container}>
-           <View style={styles.headerRow}>
-            <Text style={styles.subtitle}>Calories</Text>
-            <Text> 1770 - 360 = 1692</Text>
-           </View>
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#3498db" />
+      </View>
+    );
+  }
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Failed to fetch data</Text>
+      </View>
+    );
+  }
 
-           <View style={styles.headerRow}>
-            <Text style={styles.subtitle}>Today's food</Text>
-            <Link href="/search" asChild>
-                <Button title="ADD FOOD" />
-            </Link>
-           </View>
-           <FlatList 
-                data={foodItems}
-                contentContainerStyle={{ gap: 5 }}
-                renderItem={({ item }) => <FoodListItem item={item} />}           
-             />
-        </View>
-);
-}
+  // Navigation options 
+  const navOptions = [
+    { title: 'Message', href: '/message' },
+    { title: 'Workout', href: '/workouts' },
+    { title: 'Progress', href: '/progress' },
+    { title: 'Nutrition', href: '/nutrition' },
+    { title: 'Community', href: '/community' },
+    { title: 'Daily Challenges', href: '/challenges' },
+    { title: 'Things To Do', href: '/todolist' },
+    { title: 'Training Check In', href: '/checkin' },
+    { title: 'Photo Progress', href: '/photoprogress' },
+    { title: 'Calendar', href: '/calendar' },
+    { title: 'Step Tracker', href: '/steps' },
+  ];
+
+  // Custom navigation button 
+  const NavButton = ({ title, href }: { title: string; href: string }) => (
+    <Link href={href} asChild>
+      <TouchableOpacity style={styles.navButton}>
+        <Text style={styles.navButtonText}>{title}</Text>
+      </TouchableOpacity>
+    </Link>
+  );
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Welcome!</Text>
+      <Text style={styles.subtitle}>MENU</Text>
+      <View style={styles.navContainer}>
+        {navOptions.map((option, index) => (
+          <NavButton key={index} title={option.title} href={option.href} />
+        ))}
+      </View>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
-    container:{
-        backgroundColor: 'white', 
-        flex: 1, 
-        padding: 10, 
-        gap:10, 
-    },
-    headerRow: {
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-    },
-    subtitle: {
-        fontSize: 18, 
-        fontWeight: '500', 
-        flex: 1, 
-        color: 'dingray' }, 
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginVertical: 15,
+    color: '#333',
+  },
+  subtitle: {
+    fontSize: 18,
+    marginBottom: 20,
+    color: '#666',
+  },
+  navContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  navButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    margin: 8,
+    minWidth: '40%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  navButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  errorText: {
+    fontSize: 18,
+    color: 'red',
+  },
 });
+
+export default HomeScreen;

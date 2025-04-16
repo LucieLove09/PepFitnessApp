@@ -92,6 +92,6 @@ type Query {
     @rest(
       endpoint: "https://api.edamam.com/api/food-database/v2/parser?app_id=$app_id&app_key=$app_key"
       headers: [{ name: "accept", value: "application/json" }]
-      configuration: "edamam"    
+      configuration: "edamam"
     )
 }
